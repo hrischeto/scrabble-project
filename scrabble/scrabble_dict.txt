@@ -47,7 +47,6 @@ already
 also
 although
 always
-American
 among
 amount
 analysis
@@ -70,6 +69,7 @@ art
 article
 artist
 as
+ash
 ask
 assume
 at
@@ -259,7 +259,6 @@ decision
 deep
 defense
 degree
-Democrat
 democratic
 describe
 design
@@ -1059,6 +1058,7 @@ zero
 zipper
 zone
 zoo
+zombie
 maze
 bun
 surf
