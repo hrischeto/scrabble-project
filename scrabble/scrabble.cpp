@@ -290,7 +290,27 @@ void initiateGame(std::ifstream& dictionary) {
 		initiateGame(dictionary);
 		break;
 
-	//case 2:		//settings
+	case '2':		//settings
+		std::cout << "Choose 'a' or 'b'." << std::endl;
+		std::cin >> menuChoice;
+
+		switch (menuChoice) {
+
+		case 'a':	 //letters
+
+			lettersPreferences(numberOfLetters);
+			playGame(dictionary, numberOfLetters, rounds);
+			initiateGame(dictionary);
+			break;
+
+		case 'b':	//rounds
+
+			roundsPreferences(rounds);
+			playGame(dictionary, numberOfLetters, rounds);
+			initiateGame(dictionary);
+			break;
+		}
+		break;
 
 	case 'a':	 //letters
 
