@@ -584,8 +584,6 @@ mouth
 move
 movement
 movie
-Mr
-Mrs
 much
 music
 must
@@ -1076,8 +1074,9 @@ vasi
 cat
 magic
 quiz
-
-
-
-
-
+ski
+maze
+hrisi
+chips
+breakfast
+fmi

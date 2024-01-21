@@ -9,7 +9,7 @@
 * @idnumber 9MI0600381
 * @compiler VC
 *
-*
+* game of Scrabble
 *
 */
 
@@ -19,13 +19,16 @@
 constexpr size_t SIZE = 100;
 constexpr size_t NUMBER_OF_VOWELS = 5;
 
-void menu(int& menuChoice){
+void menu(char& menuChoice){
 	std::cout << "1 Start a new game!" << std::endl;
 	std::cout << "\n2 Settings" << std::endl;
+	std::cout << "\n\ta Letters Preferences" << std::endl;
+	std::cout << "\n\tb Rounds Preferences" << std::endl;
 	std::cout << "\n3 Add to dictionary" << std::endl;
 	std::cout << "\n4 Exit" << std::endl;
 
-	std::cout << "\nChoose number of option from the menu:" << std::endl;
+
+	std::cout << "\nChoose option from the menu:" << std::endl;
 
 	std::cin >> menuChoice;
 }
@@ -79,6 +82,7 @@ void getWord(char* inputWord) {
 	}
 
 	std::cout << "\nWrite a word with your letters:" << std::endl;
+	std::cout << "If you want to change your letters, enter 1" << std::endl;
 	std::cin >> inputWord;
 }
 
@@ -116,23 +120,24 @@ bool compareWords(char* inputWord, char* wordFromDict) {
 bool isWordInDict(char* inputWord, std::ifstream& dictionary) {
 
 	char wordFromDict[SIZE + 1];
-	bool isValid = 0;
+	bool isPresent = 0;
 
 	dictionary >> wordFromDict;
-	int wordsRead = 1;
 	while (*wordFromDict){
 		
-		isValid = compareWords(inputWord, wordFromDict);
+		isPresent = compareWords(inputWord, wordFromDict);
 		
-		if(isValid)
-			return isValid;
+		if (isPresent) {
+			dictionary.seekg(0, std::ios::beg);
+			return 1;
+		}
 
 		dictionary.ignore();
-		dictionary >> wordFromDict;
-		wordsRead++;
+		dictionary >> wordFromDict;	
 	}
 
-	//dictionary.seekg(0, ios::beg);
+	dictionary.clear();
+	dictionary.seekg(0, std::ios::beg);
 	return 0;
 }
 
@@ -160,9 +165,9 @@ void checkWord(char* inputWord, char* givenLetters, int& gamePoints, std::ifstre
 	}
 
 	inputWord -= strLen;
-	bool isValid = isWordInDict(inputWord, dictionary);
+	bool isInDict = isWordInDict(inputWord, dictionary);
 
-	if (isValid) {
+	if (isInDict) {
 		gamePoints += pointsFromCurrentWord;
 		return;
 	}
@@ -184,6 +189,9 @@ void playGame(std::ifstream& dictionary, int numberOfLetters, int rounds)
 
 		getWord(inputWord);
 
+		if (*inputWord == '1')
+			continue;
+
 		checkWord(inputWord, givenLetters, gamePoints, dictionary);
 
 		std::cout << "\nYour points so far are: " << gamePoints << "!" << std::endl;
@@ -191,50 +199,126 @@ void playGame(std::ifstream& dictionary, int numberOfLetters, int rounds)
 
 	std::cout << "\nGAME OVER!\n\nGood job! Your total points are " << gamePoints << "." << std::endl;
 	std::cout << "\nReturning to menu."<<std::endl;
+	std::cout << '\n';
 
 }
 
-void settings(std::ifstream& dictionary, int numberOfLetters, int rounds)
+void lettersPreferences(int& numberOfLetters)
 {
-	std::cout << "\tSETTINGS" << std::endl;
-	std::cout << "\n1 Letters Preferences" << std::endl;
-	std::cout << "\n2 Rounds Preferences" << std::endl;
-	std::cout << "\n3 Start game" << std::endl;
+	std::cout << "\nCurrently you are playing with " << numberOfLetters << " letters." << std::endl;
+	std::cout << "With how many letters do you want to play? Enter a number between 1 and 100:" << std::endl;
+	std::cin >> numberOfLetters;
 
-	int settingsChoice;
-
-	std::cout << "\nEnter number of option:";
-	std::cin >> settingsChoice;
-
-	switch (settingsChoice) {
-	case 1:
-
-		std::cout << "\nCurrently you are playing with " << numberOfLetters << " letters." << std::endl;
-		std::cout << "With how many letters do you want to play? Enter a number between 1 and 26:" << std::endl;
+	while (numberOfLetters < 1 || numberOfLetters>100)
+	{
+		std::cout << "Enter a valid number between 1 and 100." << std::endl;
 		std::cin >> numberOfLetters;
+	}
 
-		while (numberOfLetters < 1 || numberOfLetters>26)
-		{
-			std::cout << "Enter a valid number between 1 and 26." << std::endl;
-			std::cin >> numberOfLetters;
-		}
+}
 
-		settings(dictionary,  numberOfLetters,  rounds);
-		break;
+void roundsPreferences(int& rounds) {
+
+	std::cout << "\nYou will play " << rounds << " rounds." << std::endl;
+	std::cout << "How many rounds do you want to play?" << std::endl;
+	std::cin >> rounds;
+
+}
+
+bool areSymbolsValid(const char* newWord) {
+
+	if (!newWord) {
+		std::cout << "Error" << std::endl;
+		return 0;
+	}
+
+	while (*newWord) {
+		if (*newWord < 'a' || *newWord > 'z')
+			return 0;
+		newWord++;
+	}
+
+	return 1;
+}
+
+void writeInFile() {
+
+	std::ofstream dictionary("scrabble_dict.txt", std::ios::app);
+	//std::ofstream dictionary;
+	//dictionary.open("");
+	if (!dictionary.is_open()){
+
+		std::cout << "Error!" << std::endl;
+		return;
+	}
 	
-	case 2:
-		std::cout << "\nYou will play " << rounds << " rounds." << std::endl;
-		std::cout << "How many rounds do you want to play?" << std::endl;
-		std::cin >> rounds;
+	char newWord[SIZE + 1];
 
-		settings(dictionary, numberOfLetters, rounds);
-		break;
+	std::cout << "Write the word you want to add to the dictionary with small letters:" << std::endl;
+	std::cin >> newWord;
 
-	case 3:
+	bool areLettersValid = areSymbolsValid(newWord);
+
+	if (areLettersValid) {
+		//dictionary.seekp(50, std::ios::end);
+		dictionary << newWord;
+		dictionary << '\n';
+	}
+	else
+		std::cout << "Invalid input!" << std::endl;
+
+	dictionary.clear();
+	dictionary.close();
+	return;
+	
+}
+
+void initiateGame(std::ifstream& dictionary) {
+	char menuChoice;
+	menu(menuChoice);
+
+	const int defaultNumber = 10;
+	int numberOfLetters = defaultNumber;
+	int rounds = defaultNumber;
+
+	switch (menuChoice) {
+
+	case '1':		//start game
+
+		std::cout << "START!" << std::endl;
 		playGame(dictionary, numberOfLetters, rounds);
+		initiateGame(dictionary);
 		break;
+
+	//case 2:		//settings
+
+	case 'a':	 //letters
+
+		lettersPreferences(numberOfLetters);
+		playGame(dictionary, numberOfLetters, rounds);
+		initiateGame(dictionary);
+		break;
+
+	case 'b':	//rounds
+
+		roundsPreferences(rounds);
+		playGame(dictionary, numberOfLetters, rounds);
+		initiateGame(dictionary);
+		break;
+
+	case '3': //add to dictionary
+
+		writeInFile();
+		break;
+
+	case '4':		//exit
+		return;
+
+
+	}
+
 }
-}
+
 void scrabble() {
 
 	std::ifstream dictionary;
@@ -244,35 +328,7 @@ void scrabble() {
 		return;
 	}
 
-	int menuChoice;
-	menu(menuChoice);
-
-	const int defaultNumber = 10;
-	int numberOfLetters = defaultNumber;
-	int rounds = defaultNumber;
-
-	switch (menuChoice) {
-
-	case 1:		//start game
-
-		std::cout<<"START!" << std::endl;
-		playGame(dictionary, numberOfLetters, rounds);
-
-		break;
-
-	case 2:		//settings
-
-		settings(dictionary, numberOfLetters, rounds);
-
-		break;
-
-	case 3:		
-		break;
-	case 4:		//exit
-		return;
-	
-
-	}
+	initiateGame(dictionary);
 
 	dictionary.clear();
 	dictionary.close();
