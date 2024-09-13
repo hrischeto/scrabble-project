@@ -18,6 +18,7 @@
 
 constexpr size_t SIZE = 100;
 constexpr size_t NUMBER_OF_VOWELS = 5;
+const int defaultNumber = 10;
 
 void menu(char& menuChoice){
 	std::cout << "1 Start a new game!" << std::endl;
@@ -244,8 +245,6 @@ bool areSymbolsValid(const char* newWord) {
 void writeInFile() {
 
 	std::ofstream dictionary("scrabble_dict.txt", std::ios::app);
-	//std::ofstream dictionary;
-	//dictionary.open("");
 	if (!dictionary.is_open()){
 
 		std::cout << "Error!" << std::endl;
@@ -260,7 +259,6 @@ void writeInFile() {
 	bool areLettersValid = areSymbolsValid(newWord);
 
 	if (areLettersValid) {
-		//dictionary.seekp(50, std::ios::end);
 		dictionary << newWord;
 		dictionary << '\n';
 	}
@@ -274,71 +272,52 @@ void writeInFile() {
 }
 
 void initiateGame(std::ifstream& dictionary) {
-	char menuChoice;
-	menu(menuChoice);
-
-	const int defaultNumber = 10;
+	
 	int numberOfLetters = defaultNumber;
 	int rounds = defaultNumber;
 
-	switch (menuChoice) {
-
-	case '1':		//start game
-
-		std::cout << "START!" << std::endl;
-		playGame(dictionary, numberOfLetters, rounds);
-		initiateGame(dictionary);
-		break;
-
-	case '2':		//settings
-		std::cout << "Choose 'a' or 'b'." << std::endl;
-		std::cin >> menuChoice;
+	while (true)
+	{
+		char menuChoice;
+		menu(menuChoice);
 
 		switch (menuChoice) {
 
-		case 'a':	 //letters
+		case '1':		//start game
 
-			lettersPreferences(numberOfLetters);
+			std::cout << "START!" << std::endl;
 			playGame(dictionary, numberOfLetters, rounds);
-			initiateGame(dictionary);
 			break;
 
-		case 'b':	//rounds
+		case '2':		//settings
+			std::cout << "Choose 'a' or 'b'." << std::endl;
+			std::cin >> menuChoice;
 
-			roundsPreferences(rounds);
-			playGame(dictionary, numberOfLetters, rounds);
-			initiateGame(dictionary);
+			switch (menuChoice) {
+
+			case 'a':	 //letters
+
+				lettersPreferences(numberOfLetters);
+				break;
+
+			case 'b':	//rounds
+
+				roundsPreferences(rounds);
+				break;
+			}
 			break;
+
+		case '3': //add to dictionary
+
+			writeInFile();
+			break;
+
+		case '4':		//exit
+			return;
 		}
-		break;
-
-	case 'a':	 //letters
-
-		lettersPreferences(numberOfLetters);
-		playGame(dictionary, numberOfLetters, rounds);
-		initiateGame(dictionary);
-		break;
-
-	case 'b':	//rounds
-
-		roundsPreferences(rounds);
-		playGame(dictionary, numberOfLetters, rounds);
-		initiateGame(dictionary);
-		break;
-
-	case '3': //add to dictionary
-
-		writeInFile();
-		break;
-
-	case '4':		//exit
-		return;
-
-
 	}
 
 }
-
 void scrabble() {
 
 	std::ifstream dictionary;
